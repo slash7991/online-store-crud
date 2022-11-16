@@ -9,7 +9,7 @@ import {
 import React, { useEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { useRoute } from "@react-navigation/native";
-import { db } from "../../firebase";
+import { db, storage } from "../../firebase";
 const Update = ({ navigation }) => {
   const route = useRoute();
   const [newItem, setnewItem] = useState({
