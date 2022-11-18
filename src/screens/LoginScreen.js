@@ -50,6 +50,11 @@ const LoginScreen = () => {
     <KeyboardAvoidingView style={styles.container} behavior="padding">
       <View style={styles.inputContainer}>
         <TextInput
+          textContentType="emailAddress"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          autoCompleteType="email"
           placeholder="Email"
           value={email}
           onChangeText={(text) => setEmail(text)}

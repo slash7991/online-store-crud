@@ -1,4 +1,5 @@
 import {
+  Alert,
   Pressable,
   StyleSheet,
   Text,
@@ -10,6 +11,8 @@ import React, { useEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { useRoute } from "@react-navigation/native";
 import { db, storage } from "../../firebase";
+import store from "../redux/store";
+import { deleteI, update } from "../redux/action";
 const Update = ({ navigation }) => {
   const route = useRoute();
   const [newItem, setnewItem] = useState({
@@ -18,38 +21,15 @@ const Update = ({ navigation }) => {
     price: null,
     imageUrl: null,
   });
-  const [list, setList] = useState([]);
+  const [list, setList] = useState([...store.getState().allItem]);
   const [image, setImage] = useState(null);
   const [uploading, setUploading] = useState(false);
   const id = route.params.itemId;
-  useEffect(() => {
-    db.collection("Items")
-      .get()
-      .then((querySnapshot) => {
-        querySnapshot.forEach((snapshot) => {
-          let data = snapshot.data();
-          let tempData = [...data.allItem];
-          setList(tempData);
-        });
-      });
-  }, []);
-  useEffect(() => {
-    console.log("====================================");
-    console.log(list);
-    console.log("====================================");
-  }, [list]);
 
   const DeleteUsers = () => {
     list.splice(route.params.itemId, 1);
-    db.collection("Items")
-      .doc("FE46nOIBSjyJEVmzbrIm")
-      .set({
-        allItem: list,
-      })
-      .then(() => {
-        alert("item deleted");
-        navigation.goBack("Home");
-      });
+    store.dispatch(deleteI(list));
+    navigation.goBack("Home");
   };
   const updateName = (text) => {
     const tempList = [...list];
@@ -107,15 +87,8 @@ const Update = ({ navigation }) => {
     setImage(null);
   };
   const UpdateItem = () => {
-    db.collection("Items")
-      .doc("FE46nOIBSjyJEVmzbrIm")
-      .set({
-        allItem: list,
-      })
-      .then(() => {
-        alert("item updated");
-        navigation.goBack("Home");
-      });
+    store.dispatch(update(list));
+    navigation.goBack("Home");
   };
 
   return (

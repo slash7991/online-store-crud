@@ -6,24 +6,17 @@ import { CardViewWithImage } from "react-native-simple-card-view";
 import { ScrollView } from "react-native-gesture-handler";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useIsFocused } from "@react-navigation/native";
+import store from "../redux/store";
 const HomeScreen = ({ navigation }) => {
+  console.log("====================================");
+  console.log("redux=>", store.getState().allItem);
+  console.log("====================================");
   const [allItem, setItems] = useState([]);
   const isFocused = useIsFocused();
-  useEffect(() => {
-    db.collection("Items")
-      .get()
-      .then((querySnapshot) => {
-        querySnapshot.forEach((snapshot) => {
-          let data = snapshot.data();
-          console.log(data.allItem);
-          let tempData = [...data.allItem];
-          setItems(tempData);
-        });
-      });
-  }, [isFocused]);
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {allItem.map((item, index) => {
+      {store.getState().allItem.map((item, index) => {
         return (
           <CardViewWithImage
             key={index}

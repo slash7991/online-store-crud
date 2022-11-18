@@ -1,0 +1,6 @@
+export default {
+  SHOW: "SHOW",
+  ADDITEM: "ADDITEM",
+  DELETEITEM: "DELETEITEM",
+  UPDATEITEM: "UPDATEITEM",
+};

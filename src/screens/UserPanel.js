@@ -7,11 +7,15 @@ import {
   Button,
   Alert,
   KeyboardAvoidingView,
+  ToastAndroid,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { db, storage } from "../../firebase";
 import * as ImagePicker from "expo-image-picker";
-const UserPanel = ({ allItem, setItems }) => {
+
+import { add } from "../redux/action";
+import store from "../redux/store";
+const UserPanel = ({ navigation }) => {
   const [list, setList] = useState([]);
   const [newItem, setnewItem] = useState({
     name: null,
@@ -19,6 +23,7 @@ const UserPanel = ({ allItem, setItems }) => {
     price: null,
     imageUrl: null,
   });
+
   const [image, setImage] = useState(null);
   const [uploading, setUploading] = useState(false);
 
@@ -42,18 +47,7 @@ const UserPanel = ({ allItem, setItems }) => {
       setnewItem({ ...newItem, imageUrl: source });
     }
   };
-  useEffect(() => {
-    db.collection("Items")
-      .get()
-      .then((querySnapshot) => {
-        querySnapshot.forEach((snapshot) => {
-          let data = snapshot.data();
-          console.log(data.allItem);
-          let tempData = [...data.allItem];
-          setList(tempData);
-        });
-      });
-  }, []);
+
   const uploadImage = async () => {
     setUploading(true);
     const response = await fetch(image.uri);
@@ -72,20 +66,16 @@ const UserPanel = ({ allItem, setItems }) => {
     Alert.alert("photo uploaded");
     setImage(null);
   };
-  const handleAddItem = () => {
-    uploadImage();
+  const handleAddItem = async () => {
     const addItem = {
       name: newItem.name,
       offer_price: newItem.offer_price,
       price: newItem.price,
       imageUrl: newItem.imageUrl,
     };
-    const tempList = [...list, addItem];
-    setList(tempList);
-
-    db.collection("Items").doc("FE46nOIBSjyJEVmzbrIm").set({
-      allItem: list,
-    });
+    const tempList = [...store.getState().allItem, addItem];
+    store.dispatch(add(tempList));
+    navigation.goBack("Home");
   };
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
@@ -114,7 +104,25 @@ const UserPanel = ({ allItem, setItems }) => {
         <Button title="upload image" onPress={uploadImage} />
       </View>
       <View style={styles.buttonContainer}>
-        <Pressable onPress={handleAddItem} style={styles.button}>
+        <Pressable
+          onPress={() => {
+            if (
+              newItem.name == null ||
+              newItem.price == null ||
+              newItem.offer_price == null ||
+              newItem.imageUrl == null
+            ) {
+              ToastAndroid.showWithGravity(
+                "fill up all the feilds",
+                ToastAndroid.SHORT,
+                ToastAndroid.CENTER
+              );
+            } else {
+              handleAddItem();
+            }
+          }}
+          style={styles.button}
+        >
           <Text style={styles.buttonText}>Add Item</Text>
         </Pressable>
       </View>

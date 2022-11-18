@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
@@ -9,46 +9,24 @@ import HomeScreen from "./src/screens/HomeScreen";
 import UserPanel from "./src/screens/UserPanel";
 import Logout from "./src/components/Logout";
 import Update from "./src/screens/Update";
+import store from "./src/redux/store";
 
-const Stack = createNativeStackNavigator();
-const Drawer = createDrawerNavigator();
-
+import Assignment from "./Assignment";
+import { db } from "./firebase";
+import { show } from "./src/redux/action";
 export default function App() {
-  function Root() {
-    return (
-      <Drawer.Navigator initialRouteName="Home">
-        <Drawer.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{ unmountOnBlur: true }}
-        />
-        <Drawer.Screen
-          name="User panel"
-          component={UserPanel}
-          options={{ unmountOnBlur: true }}
-        />
-        <Drawer.Screen name="Log Out" component={Logout} />
-      </Drawer.Navigator>
-    );
-  }
-  return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          options={{ headerShown: false }}
-          name="Login"
-          component={LoginScreen}
-        />
-
-        <Stack.Screen
-          name="Root"
-          component={Root}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name="Update" component={Update} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+  useEffect(() => {
+    db.collection("Items")
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((snapshot) => {
+          let data = snapshot.data();
+          let tempData = [...data.allItem];
+          store.dispatch(show(tempData));
+        });
+      });
+  }, []);
+  return <Assignment />;
 }
 
 const styles = StyleSheet.create({
